@@ -161,6 +161,13 @@ layout[10][4] = 'S'
 layout[12][2] = 'D'
 layout[14][10] = 'T'
 layout[12][8] = 'F'
+layout[3][3] = 'S'
+layout[5][5] = 'D'
+layout[7][7] = 'T'
+layout[9][9] = 'F'
+layout[11][11] = 'S'
+layout[13][13] = 'D'
+layout[13][15] = 'F'
 
 # Выход
 layout[14][18] = 'E'

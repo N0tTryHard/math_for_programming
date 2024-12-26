@@ -1,14 +1,14 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
-from PyQt5.QtGui import QPainter, QColor
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout
+from PyQt5.QtGui import QPainter, QColor, QBrush
 from PyQt5.QtCore import Qt
 
-# Определяем размеры клетки и размеры окна
+# Размеры окна
+WIDTH, HEIGHT = 400, 400
 CELL_SIZE = 40
-MAZE_WIDTH = 10
-MAZE_HEIGHT = 10
+ROWS, COLS = HEIGHT // CELL_SIZE, WIDTH // CELL_SIZE
 
-# Определяем лабиринт
+# Лабиринт
 maze = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
@@ -22,49 +22,58 @@ maze = [
     [1, 1, 1, 1, 1, 1, 1, 1, 0, 1]
 ]
 
-# Начальные координаты игрока (можно изменить на любую допустимую позицию)
-player_x = player_y = (5, 5)  # Начинаем с позиции (5,5), которая свободна
+# Координаты игрока
+player_x, player_y = 0, 1
 
 
 class MazeWidget(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.path_points = []  # Список для хранения пройденного пути
-        self.path_points.append(player_x)  # Добавляем начальную позицию в путь
+        self.setFixedSize(WIDTH, HEIGHT)
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        self.draw_maze(painter)
-        self.draw_path(painter)
-
-    def draw_maze(self, painter):
-        for y in range(len(maze)):
-            for x in range(len(maze[y])):
-                if maze[y][x] == 1:
-                    painter.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QColor("black"))  # Стена
-                elif (x == player_x[0] and y == player_x[1]):
-                    painter.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QColor("blue"))  # Игрок
-
-    def draw_path(self, painter):
-        for point in self.path_points:
-            x, y = point
-            painter.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QColor("red"))  # Пройденный путь
+        for y in range(ROWS):
+            for x in range(COLS):
+                color = QColor(0, 0, 0) if maze[y][x] == 1 else QColor(255, 255, 255)
+                painter.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QBrush(color))
+        painter.fillRect(player_x * CELL_SIZE, player_y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QBrush(QColor(0, 0, 255)))
+        painter.fillRect(8 * CELL_SIZE, 9 * CELL_SIZE, CELL_SIZE, CELL_SIZE, QBrush(QColor(0, 255, 0)))
 
 
-class MazeGame(QMainWindow):
+class PathWidget(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setFixedSize(WIDTH, HEIGHT)
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        for y in range(ROWS):
+            for x in range(COLS):
+                if maze[y][x] == 3:
+                    painter.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE, QBrush(QColor(255, 0, 0)))
+
+
+class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("Maze Game")
-        self.setGeometry(100, 100, MAZE_WIDTH * CELL_SIZE * 2, MAZE_HEIGHT * CELL_SIZE)
+        self.setWindowTitle("Прародитель лабиринта")
+        self.setGeometry(100, 100, WIDTH * 2 + 20, HEIGHT)
 
         self.maze_widget = MazeWidget(self)
-        self.setCentralWidget(self.maze_widget)
+        self.path_widget = PathWidget(self)
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.maze_widget)
+        layout.addWidget(self.path_widget)
+
+        container = QWidget()
+        container.setLayout(layout)
+        self.setCentralWidget(container)
 
     def keyPressEvent(self, event):
-        global player_x
-        new_x = player_x[0]
-        new_y = player_x[1]
-
+        global player_x, player_y
+        new_x, new_y = player_x, player_y
         if event.key() == Qt.Key_Up:
             new_y -= 1
         elif event.key() == Qt.Key_Down:
@@ -74,21 +83,16 @@ class MazeGame(QMainWindow):
         elif event.key() == Qt.Key_Right:
             new_x += 1
 
-        # Проверка на допустимость нового положения
-        if (0 <= new_x < len(maze[0]) and
-                0 <= new_y < len(maze) and
-                maze[new_y][new_x] == 0):
-            player_x = (new_x, new_y)
-
-            # Добавляем новую позицию в список пройденного пути
-            if player_x not in self.maze_widget.path_points:
-                self.maze_widget.path_points.append(player_x)
+        if 0 <= new_x < COLS and 0 <= new_y < ROWS and maze[new_y][new_x] != 1:
+            maze[player_y][player_x] = 3
+            player_x, player_y = new_x, new_y
 
         self.maze_widget.update()
+        self.path_widget.update()
 
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    game = MazeGame()
-    game.show()
+    window = MainWindow()
+    window.show()
     sys.exit(app.exec_())

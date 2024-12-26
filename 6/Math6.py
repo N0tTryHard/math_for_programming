@@ -317,15 +317,12 @@ class SeaBattleConsole:
     def __init__(self, size, num_ships):
         self.size = size
         self.num_ships = num_ships
-        self.player_field = self.create_3d_field(size)
-        self.computer_field = self.create_3d_field(size)
+        self.player_field = create_3d_field(size)
+        self.computer_field = create_3d_field(size)
         self.place_1deck_ships_randomly(self.player_field, num_ships)
         self.place_1deck_ships_randomly(self.computer_field, num_ships)
         self.player_turn = True
         self.computer_shots = []
-
-    def create_3d_field(self, size):
-        return [[[' ' for _ in range(size)] for _ in range(size)] for _ in range(size)]
 
     def place_1deck_ships_randomly(self, field, num_ships):
         for _ in range(num_ships):
@@ -338,20 +335,6 @@ class SeaBattleConsole:
                     field[z][x][y] = 'S'
                     placed = True
 
-    def shoot(self, field, x, y, z):
-        if field[z][x][y] == 'S':
-            field[z][x][y] = 'X'
-            print(f"Попадание в ({x}, {y}, {z})")
-            return True
-        elif field[z][x][y] == ' ':
-            field[z][x][y] = 'O'
-            print(f"Промах в ({x}, {y}, {z})")
-            return False
-        return None
-
-    def all_ships_sunk(self, field):
-        return all(cell != 'S' for level in field for row in level for cell in row)
-
     def play(self):
         print("Игра началась!")
         while True:
@@ -359,8 +342,8 @@ class SeaBattleConsole:
             try:
                 x, y, z = map(int, input("Введите координаты выстрела (x y z): ").split())
                 if 0 <= x < self.size and 0 <= y < self.size and 0 <= z < self.size:
-                    if self.shoot(self.computer_field, x, y, z):
-                        if self.all_ships_sunk(self.computer_field):
+                    if shoot(self.computer_field, x, y):
+                        if all_ships_sunk(self.computer_field):
                             print("Победа! Вы потопили все корабли противника.")
                             break
                     else:
@@ -373,8 +356,8 @@ class SeaBattleConsole:
                         comp_z = random.randint(0, self.size - 1)
                         if (comp_x, comp_y, comp_z) not in self.computer_shots:
                             self.computer_shots.append((comp_x, comp_y, comp_z))
-                            if self.shoot(self.player_field, comp_x, comp_y, comp_z):
-                                if self.all_ships_sunk(self.player_field):
+                            if shoot(self.player_field, comp_x, comp_y, comp_z):
+                                if all_ships_sunk(self.player_field):
                                     print("Поражение! Все ваши корабли потоплены.")
                                     return
                             break

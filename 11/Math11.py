@@ -19,7 +19,7 @@ BLACK = (0, 0, 0)
 
 # Создание окна игры
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Звездолет против комет")
+pygame.display.set_caption("Типа арканоид")
 
 
 # Класс для звездолета
@@ -78,7 +78,7 @@ def main():
 
             # Стрельба ракетами
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and len(rockets) < 3:  # максимум 3 ракеты на поле
+                if event.key == pygame.K_SPACE and len(rockets) < 5:
                     rockets.append(Rocket(spaceship.rect.centerx))
 
         # Движение объектов
@@ -93,7 +93,7 @@ def main():
             comet.move()
             if comet.rect.top > HEIGHT:
                 comets.remove(comet)
-                score += 1  # увеличиваем счет за каждую комету
+                score += 1
 
         # Проверка столкновений
         for comet in comets[:]:
@@ -105,10 +105,10 @@ def main():
                 if rocket.rect.colliderect(comet.rect):
                     rockets.remove(rocket)
                     comets.remove(comet)
-                    score += 5  # увеличиваем счет за уничтожение кометы
+                    score += 5
 
         # Добавление новых комет
-        if random.randint(1, 20) == 1:  # случайное появление комет
+        if random.randint(1, 20) == 1:
             comets.append(Comet())
 
         # Отрисовка объектов на экране

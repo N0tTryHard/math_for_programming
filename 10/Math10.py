@@ -2,7 +2,6 @@ import pygame
 import random
 import math
 
-# Инициализация pygame
 pygame.init()
 
 # Параметры окна
@@ -15,21 +14,20 @@ radius = 200
 center_x, center_y = width // 2, height // 2
 
 # Количество участников и кругов
-num_participants = 4  # Вы можете изменить это значение на 3-5
-num_laps = 3
+num_participants = 2
+num_laps = 2
 
-# Цвета участников (можно изменить на любые другие)
-colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0)]
+colors = [(255, 0, 0), (0, 255, 0)]
 
 # Инициализация участников
 participants = []
 for i in range(num_participants):
     participants.append({
-        'name': f'Персонаж {i + 1}',  # Имя участника
-        'position': 0,  # Начальная позиция (угол в радианах)
-        'speed': random.uniform(0.01, 0.05),  # Начальная скорость
-        'direction': random.choice([1, -1]),  # Направление (1 - вперед, -1 - назад)
-        'laps': 0  # Количество пройденных кругов
+        'name': f'Персонаж {i + 1}',
+        'position': 0,
+        'speed': random.uniform(0.01, 0.05),
+        'direction': random.choice([1, -1]),
+        'laps': 0
     })
 
 
@@ -37,7 +35,6 @@ for i in range(num_participants):
 def update_position(participant):
     participant['position'] += participant['speed'] * participant['direction']
 
-    # Проверка на завершение круга: если позиция >= 2π или <= -2π
     if participant['position'] >= 2 * math.pi:
         participant['position'] -= 2 * math.pi
         participant['laps'] += 1
@@ -74,7 +71,6 @@ while running:
             participant['speed'] = random.uniform(0.01, 0.05)
             participant['direction'] = random.choice([1, -1])
 
-    # Отображение участников и круга
     screen.fill((255, 255, 255))
     pygame.draw.circle(screen, (0, 0, 0), (center_x, center_y), radius, 1)
 
@@ -94,7 +90,6 @@ while running:
     pygame.display.flip()
     clock.tick(30)
 
-# Вывод итоговых позиций в консоль после завершения гонки
 print("Итоговые позиции участников:")
 for i in sorted(participants, key=lambda p: p['laps'], reverse=True):
     print(f"{i['name']}: {i['laps']} кругов")
